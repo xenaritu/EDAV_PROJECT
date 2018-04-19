@@ -1,0 +1,106 @@
+---
+title: "New York 311 Complaints"
+author: "Divya Hindupur"
+date: "4/19/2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, eval=T,fig.width= 20 ,fig.height= 17)
+```
+
+## R Markdown
+
+```{r}
+library(ggplot2)
+library(VIM)
+library(ggplot2)
+library(extracat)
+setwd("/Users/divyahindupur/Documents/DS@CU/EDAV/HW/EDAV_project")
+data_sample = read.csv('top_complaints_sample500.csv')
+```
+
+## Analyzing missing data values on a sample of 500
+```{r, fig.height=20, fig.width=35}
+aggr(data_sample,col=c("gray62","tomato","orange"), prop = F, numbers = T,labels = seq(0,length(names(data_sample))),bars=TRUE,gap=1,border="white",main = "Missing data",xlab="column index",cex.lab=3, cex.axis=4, cex.main=4, cex.sub=4)
+```
+
+```{r,fig.height=20, fig.width=35}
+aggr(data_sample,col=c("gray62","tomato","orange"), prop = T, numbers = T,labels = seq(0,length(names(data_sample))),bars=TRUE,gap=1,border="white",main = "Missing data",xlab="column index",cex.lab=3, cex.axis=4, cex.main=4, cex.sub=4)
+```
+
+```{r, fig.height=15,fig.width=25}
+visna(data_sample, freqvar = "Freq", tp = FALSE, fr = 1, fc = 1, sort = "n",     sort.method = "count", col = "w", mar.col = c(alpha("black", 0.7), alpha("red", 0.7), "red", "green"),s = Inf, pmax = 1, opts = list(), plot = TRUE,cex.lab=3, cex.axis=4, cex.main=4, cex.sub=4)
+
+```
+
+```{r,fig.height=20, fig.width=35}
+matrixplot(data_sample, interactive = F,col=c("tomato"),labels=seq(0,length(names(data_sample))),main = "Missing data",xlab="column index",cex.lab=3, cex.axis=4, cex.main=4, cex.sub=4)
+```
+
+We see a lot of missing values in columns ranges between 35 and 50. We try to explore further:
+
+```{r, fig.height=20, fig.width=35}
+sparse_data = subset(data_sample, select=34:50)
+
+aggr(sparse_data,col=c("gray62","tomato","orange"), prop = F, numbers = T,labels = seq(35,50),gap=1,border="white",bars=TRUE,main = "Missing data",xlab="column index",cex.lab=3, cex.axis=4, cex.main=4, cex.sub=4)
+```
+
+```{r, fig.height=20, fig.width=35}
+aggr(sparse_data,col=c("gray62","tomato","orange"), prop = T, numbers = T,labels = seq(35,50),gap=1,border="white",bars=TRUE,main = "Missing data",xlab="column index",cex.lab=3, cex.axis=4, cex.main=4, cex.sub=4)
+```
+
+The Columns 41 to 50 are fully empty so we discard them.
+
+```{r}
+dense_data = data_sample
+colnames= names(data_sample)
+empty_columns = c(colnames[c(35,40:50)])
+dense_data = data_sample[,!names(data_sample) %in% empty_columns]
+```
+
+And now the data is dense:
+
+```{r,fig.height=20, fig.width=35}
+matrixplot(dense_data, interactive=F,col=c("tomato"),labels=seq(0,length(names(data_sample))),main = "Missing data",xlab="column index",cex.lab=3, cex.axis=4, cex.main=4, cex.sub=4)
+```
+
+```{r,fig.height=20, fig.width=35}
+aggr(dense_data,col=c("gray62","tomato","orange"), prop = T, numbers = T,labels = seq(0,length(names(data_sample))),gap=1,border="white",bars=TRUE,main = "Missing data",xlab="column index",cex.lab=3, cex.axis=4, cex.main=4, cex.sub=4)
+```
+
+## Visualizing the entire data
+
+```{r}
+setwd("/Users/divyahindupur/Documents/DS@CU/EDAV/HW/EDAV_project")
+all_data=read.csv("Top_5_complaints.csv")
+```
+
+Which agency got the highest number of complaints?
+
+```{r}
+ggplot(all_data,aes(Agency )) + geom_bar(fill= 'RoyalBlue')
+```
+
+```{r}
+ggplot(all_data,aes(Agency )) + geom_bar(fill= 'Tomato') + facet_wrap(~year,ncol = 3)
+```
+
+Which zip code had the highest complaints?
+
+```{r}
+ggplot(all_data,aes(Incident.Zip )) + geom_bar(fill= 'RoyalBlue') + xlim(c(10000,11750))
+
+```
+
+
+Complaint types for Boroughs:
+```{r}
+ ggplot(all_data,aes(Complaint.Type )) + geom_bar(fill= 'Tomato') + facet_wrap(~Borough, ncol= 2)
+```
+
+Complain types by years:
+
+```{r}
+ ggplot(all_data,aes(Complaint.Type )) + geom_bar(fill= 'Tomato') + facet_wrap(~year, ncol= 2)
+```
